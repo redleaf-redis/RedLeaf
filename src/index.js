@@ -1,2 +1,4 @@
-export default () => 'default';
-export const boilerplate = () => 'boilerplate';
+import ZList from './ZList';
+export {
+  ZList,
+};
