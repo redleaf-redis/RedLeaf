@@ -1,6 +1,6 @@
 {
   "name": "redleaf",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Model for all authentication of user",
   "main": "lib/index.js",
   "repository": {
@@ -11,7 +11,7 @@
     "pretest": "npm run lint || true",
     "test": "NODE_ENV=test mocha -u bdd -R spec --require babel-core/register",
     "clean": "rimraf lib && mkdir lib",
-    "lint": "eslint src test",
+    "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "build": "npm run clean && npm run build:module",
     "build:module": "babel -d ./lib ./src -s",

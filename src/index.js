@@ -1,4 +1,5 @@
 import ZList from './ZList';
-export {
+
+export default {
   ZList,
 };

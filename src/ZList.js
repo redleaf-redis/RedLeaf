@@ -1,8 +1,10 @@
 /**
  * Created by James on 26/09/16.
  */
+import defaultConnection from './connection';
+
 const Redis = require('ioredis');
-import { defaultConnection } from './connection';
+
 /**
  * @param array
  * @returns {Array}
@@ -25,6 +27,7 @@ class ZList {
     this._preRem = [];
     this._redis = redis || defaultConnection();
   }
+
   /**
    * add a plugin to the list
    * @param {Function} plugin
@@ -46,17 +49,20 @@ class ZList {
     plugin(this, opts);
     return this;
   }
+
   /**
- * add a plugin to the list
- * @param {Function} promiseMiddleware
- * @return {ZList}
- */
+   * add a plugin to the list
+   * @param {Function} promiseMiddleware
+   * @return {ZList}
+   */
   preAdd(promiseMiddleware) {
     this._preAdds.push(promiseMiddleware);
   }
+
   preRem(promiseMiddleware) {
     this._preRem.push(promiseMiddleware);
   }
+
   /**
    * add a member with a score
    * @param score
@@ -65,7 +71,10 @@ class ZList {
    */
   add({ score, member }) {
     return Redis.Promise.resolve(this._preAdds)
-      .each((preAdd) => preAdd(this, { score, member }))
+      .each(preAdd => preAdd(this, {
+        score,
+        member,
+      }))
       .then(() => this._redis.zadd(this.name, score, member));
   }
 
@@ -85,7 +94,7 @@ class ZList {
    */
   remove(member) {
     return Redis.Promise.resolve(this._preRem)
-      .each((preRem) => preRem(this, member))
+      .each(preRem => preRem(this, member))
       .then(() => this._redis.zrem(this.name, member));
   }
 
@@ -141,6 +150,7 @@ class ZList {
   incrementBy({ member, by } = {}) {
     return this._redis.zincrby(this.name, by, member);
   }
+
   removeRangeByRank({ start, stop } = {}) {
     return this._redis.zremrangebyrank(this.name, start, stop);
   }

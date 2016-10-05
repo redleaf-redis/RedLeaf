@@ -1,7 +1,6 @@
 /**
  * Created by david on 9/27/16.
  */
-const Redis = require('ioredis');
 /**
  *
  * @param {ZList} list
@@ -28,7 +27,9 @@ export default (list) => {
     // get the members and scores with the filters
     const objectsFirstFound = await list.rangeByScore({
       range,
-      reverse, limit: limitRange });
+      reverse,
+      limit: limitRange,
+    });
 
     // if there is no objects found return empty
     if (!objectsFirstFound.length) {
@@ -59,7 +60,9 @@ export default (list) => {
         // get the new objects from the model list
         objToFilter = await list.rangeByScore({
           range,
-          reverse, limit: limitRange });
+          reverse,
+          limit: limitRange,
+        });
 
         // while the limit has items to get and the found objects to fetch and filter
       } while (limitRange.count > 0 && objToFilter.length > 0);

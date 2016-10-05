@@ -3,15 +3,19 @@ import dirtyChai from 'dirty-chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import 'sinon-as-promised';
-import { it, before, afterEach } from 'arrow-mocha/es5';
+import {
+  it,
+  before,
+  afterEach,
+} from 'arrow-mocha/es5';
 import * as RedLeaf from '../lib';
 import slugid from 'slugid';
 
 
 /*
-import _debug from 'debug';
-const debug = _debug('feedModule:test');
-*/
+ import _debug from 'debug';
+ const debug = _debug('feedModule:test');
+ */
 
 
 chai.use(chaiAsPromised);
@@ -29,8 +33,11 @@ describe('Redis Zlist', () => {
     });
     afterEach(() => zListAddStub.reset());
     after(() => zListAddStub.restore());
-    it('should call zadd from redis', async () => {
-      const add = await zlist.add({ score, member });
+    it('should call zadd from redis', async() => {
+      const add = await zlist.add({
+        score,
+        member,
+      });
       expect(add).equal('test_add');
       sinon.assert.calledOnce(zListAddStub);
       sinon.assert.calledWithExactly(zListAddStub, 'test_redis', score, member);
@@ -43,7 +50,7 @@ describe('Redis Zlist', () => {
     });
     afterEach(() => zListScoreStub.reset());
     after(() => zListScoreStub.restore());
-    it('should call zscore from redis', async () => {
+    it('should call zscore from redis', async() => {
       const scoreFetch = await zlist.score(member);
       expect(scoreFetch).equal('test_score');
       sinon.assert.calledOnce(zListScoreStub);
@@ -57,7 +64,7 @@ describe('Redis Zlist', () => {
     });
     afterEach(() => zListRemoveStub.reset());
     after(() => zListRemoveStub.restore());
-    it('should call zrem from redis', async () => {
+    it('should call zrem from redis', async() => {
       const remove = await zlist.remove(member);
       expect(remove).equal('test_remove');
       sinon.assert.calledOnce(zListRemoveStub);
@@ -73,11 +80,14 @@ describe('Redis Zlist', () => {
     });
     afterEach(() => zListScanStub.reset());
     after(() => zListScanStub.restore());
-    it('should call zscan from redis', async () => {
+    it('should call zscan from redis', async() => {
       const scan = await zlist.scan(cursor);
       expect(scan).eql({
         pointer: 'testPointer',
-        data: [{ member: 'testMember', score: 'testScore' }],
+        data: [{
+          member: 'testMember',
+          score: 'testScore',
+        }],
       });
       sinon.assert.calledOnce(zListScanStub);
       sinon.assert.calledWithExactly(zListScanStub, 'test_redis', cursor);
@@ -92,7 +102,7 @@ describe('Redis Zlist', () => {
     afterEach(() => {
       zListRangeStub.reset();
     });
-    it('should call zrangebyscore from redis', async () => {
+    it('should call zrangebyscore from redis', async() => {
       const range = {
         min: 0,
         max: '+inf',
@@ -101,25 +111,34 @@ describe('Redis Zlist', () => {
         offset: 0,
         count: 2,
       };
-      await zlist.rangeByScore({ range, limit });
+      await zlist.rangeByScore({
+        range,
+        limit,
+      });
       sinon.assert.calledOnce(zListRangeStub);
       sinon.assert.calledWithExactly(zListRangeStub,
         zlist.name, range.min, range.max, 'LIMIT', limit.offset, limit.count, 'WITHSCORES');
     });
-    it('should call zrange with defaults', async () => {
+    it('should call zrange with defaults', async() => {
       await zlist.rangeByScore();
       sinon.assert.calledOnce(zListRangeStub);
       sinon.assert.calledWithExactly(zListRangeStub, zlist.name, '-inf', '+inf', 'WITHSCORES');
     });
-    it('should cast members to objects', async () => {
+    it('should cast members to objects', async() => {
       zListRangeStub.resolves(['memberTest', 55, 'memberTest2', 66]);
       const datas = await zlist.rangeByScore();
       expect(datas).to.eql([
-        { member: 'memberTest', score: 55 },
-        { member: 'memberTest2', score: 66 },
+        {
+          member: 'memberTest',
+          score: 55,
+        },
+        {
+          member: 'memberTest2',
+          score: 66,
+        },
       ]);
     });
-    it('should call Reverse Range from redis', async () => {
+    it('should call Reverse Range from redis', async() => {
       const zListRangeRevStub = sinon.stub(zlist._redis, 'zrevrangebyscore')
         .resolves(['test_member1', 'test_member2', 'test_member3']);
       await zlist.rangeByScore({ reverse: true });
@@ -179,11 +198,14 @@ describe('Redis Zlist', () => {
       zListAddStub.reset();
     });
     after(() => zListAddStub.restore());
-    it('should call preAdds queued when add is triggered', async () => {
+    it('should call preAdds queued when add is triggered', async() => {
       zlist.preAdd(zListPreAddStub);
       zlist.preAdd(zListPreAddStub);
       sinon.assert.notCalled(zListPreAddStub);
-      const toAdd = { score: 'scoreMock', member: 'memberTest' };
+      const toAdd = {
+        score: 'scoreMock',
+        member: 'memberTest',
+      };
       await zlist.add(toAdd);
       sinon.assert.calledTwice(zListPreAddStub);
       sinon.assert.calledWithExactly(zListPreAddStub, zlist, toAdd);
@@ -202,7 +224,7 @@ describe('Redis Zlist', () => {
       zlistPreRemStub.reset();
     });
 
-    it('should call preRem queue when rem is triggered', async () => {
+    it('should call preRem queue when rem is triggered', async() => {
       zlist.preRem(zlistPreRemStub);
       const memberToRem = 'testUser';
       await zlist.remove(memberToRem);
