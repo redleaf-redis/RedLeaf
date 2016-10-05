@@ -14,7 +14,6 @@
 
 ## Usage
 ```js
-// body parser
 var redleaf = require('redleaf');
 ```
 
