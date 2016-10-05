@@ -138,11 +138,11 @@ class ZList {
    * @param by
    * @return {Promise|any}
    */
-  incrementBy({ member, by }) {
+  incrementBy({ member, by } = {}) {
     return this._redis.zincrby(this.name, by, member);
   }
-  removeRangeByRank() {
-
+  removeRangeByRank({ start, stop } = {}) {
+    return this._redis.zremrangebyrank(this.name, start, stop);
   }
 }
 

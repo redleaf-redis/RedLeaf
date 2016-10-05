@@ -1,11 +1,11 @@
 {
-  "name": "babel-boilerplate-module",
+  "name": "redleaf",
   "version": "0.0.1",
   "description": "Model for all authentication of user",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidlondono/babel-boilerplate-module"
+    "url": "https://github.com/redleaf-redis/RedLeaf"
   },
   "scripts": {
     "pretest": "npm run lint || true",
@@ -40,7 +40,7 @@
     "chai": "3.5.0",
     "chai-as-promised": "5.3.0",
     "commitizen": "2.8.6",
-    "cz-conventional-changelog": "1.2.0",
+    "cz-conventional-changelog": "^1.2.0",
     "dirty-chai": "1.2.2",
     "eslint": "2.10.2",
     "eslint-config-airbnb-base": "3.0.1",
@@ -51,7 +51,9 @@
     "sinon-as-promised": "4.0.2",
     "slugid": "1.1.0"
   },
-  "czConfig": {
-    "path": "node_modules/cz-conventional-changelog"
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
