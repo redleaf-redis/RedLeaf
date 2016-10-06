@@ -10,7 +10,7 @@ import {
   it,
   afterEach,
 } from 'arrow-mocha/es5';
-import * as RedLeaf from '../lib';
+import RedLeaf from '../lib';
 import * as Plugins from '../lib/plugins';
 
 /*

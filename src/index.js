@@ -1,5 +1,7 @@
 import ZList from './ZList';
+import Hash from './Hash';
 
-export default {
+export {
+  Hash,
   ZList,
 };
