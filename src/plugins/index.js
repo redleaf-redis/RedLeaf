@@ -6,7 +6,7 @@ import PopularStream from './PopularStream';
 import HotStream from './HotStream';
 import DripStream from './DripStream';
 
-export {
+export default {
   Paginate,
   PopularStream,
   HotStream,
