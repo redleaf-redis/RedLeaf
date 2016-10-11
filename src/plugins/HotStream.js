@@ -9,9 +9,9 @@
  */
 export default (list, { tenthLife = 43200000 / 100000 } = {}) => {
   const halfTime = tenthLife * (Math.log(10) / Math.log(2));
-  list.voteHot = ({ member, creationDate, votes }) => {
-    const score = (creationDate / halfTime) + Math.log10(votes + 1);
-    this.add({
+  list.voteHot = async({ member, creationDate, votes }) => {
+    const score = (creationDate / halfTime) + Math.log10(votes);
+    await this.add({
       member,
       score,
     });
