@@ -13,10 +13,10 @@ export default (list) => {
     const range = {};
     // set the ranges to search on redis
     if (sinceId) {
-      range.min = await list.score(sinceId);
+      range.min = await this.score(sinceId);
     }
     if (maxId) {
-      range.max = await list.score(maxId);
+      range.max = await this.score(maxId);
     }
 
     // get one more item on count, it is the nextCursor for pagination
@@ -25,7 +25,7 @@ export default (list) => {
     };
 
     // get the members and scores with the filters
-    const objectsFirstFound = await list.rangeByScore({
+    const objectsFirstFound = await this.rangeByScore({
       range,
       reverse,
       limit: limitRange,
@@ -58,7 +58,7 @@ export default (list) => {
         range.max = parseInt(lastScore, 10) - 1;
 
         // get the new objects from the model list
-        objToFilter = await list.rangeByScore({
+        objToFilter = await this.rangeByScore({
           range,
           reverse,
           limit: limitRange,
