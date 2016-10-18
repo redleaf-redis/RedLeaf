@@ -54,7 +54,7 @@ class Hash {
     for (const preSet of this._preSet) {
       await preSet(this, { field, value });
     }
-    return redis.hset(this.key, field, JSON.stringify(value));
+    return this._redis.hset(this.key, field, JSON.stringify(value));
   }
   /**
    * get value of a field
@@ -62,7 +62,7 @@ class Hash {
    * @return {Promise.<string>}
    */
   async get(field) {
-    const got = redis.hget(this.key, field);
+    const got = this._redis.hget(this.key, field);
     try {
       return JSON.parse(got);
     } catch (e) {
@@ -79,7 +79,7 @@ class Hash {
     for (const preRem of this._preRem) {
       await preRem(this, field);
     }
-    return redis.hdel(this.key, field);
+    return this._redis.hdel(this.key, field);
   }
 
 }

@@ -6,12 +6,12 @@ import dirtyChai from 'dirty-chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import 'sinon-as-promised';
+import Redis from 'ioredis';
 import {
   it,
   afterEach,
 } from 'arrow-mocha/es5';
-import RedLeaf from '../lib';
-import * as Plugins from '../lib/plugins';
+import * as RedLeaf from '../lib';
 
 /*
 
@@ -25,8 +25,8 @@ chai.use(dirtyChai);
 
 
 describe('Redis Paginate', () => {
-  const listTest = new RedLeaf.ZList('testTimeLine');
-  listTest.plugin(Plugins.paginate);
+  const listTest = new RedLeaf.ZList('testTimeLine', new Redis());
+  listTest.plugin(RedLeaf.Plugins.Paginate);
   const stubListRangeByScore = sinon.stub(listTest, 'rangeByScore').returns([
     {
       member: '78c1cc103acff2bdce8c54cc9a4b3dac',

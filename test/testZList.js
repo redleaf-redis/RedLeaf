@@ -3,6 +3,7 @@ import dirtyChai from 'dirty-chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import 'sinon-as-promised';
+import Redis from 'ioredis';
 import {
   it,
   before,
@@ -24,7 +25,7 @@ chai.use(dirtyChai);
 describe('Redis Zlist', () => {
   const member = slugid.v4();
   const score = 1;
-  const zlist = new RedLeaf.ZList('test_redis');
+  const zlist = new RedLeaf.ZList('test_redis', new Redis());
   console.log(zlist._redis);
   describe('add', () => {
     let zListAddStub;
