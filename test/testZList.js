@@ -233,4 +233,18 @@ describe('Redis Zlist', () => {
       sinon.assert.calledOnce(zlistPreRemStub);
     });
   });
+  describe.only('pre functions', () => {
+    let zListRemoveStub;
+    before(() => {
+      zListRemoveStub = sinon.stub(zlist._redis, 'zrem').resolves('test_remove');
+    });
+    it('should queue a pre function', async () => {
+      const stubCallback = sinon.stub().resolves({});
+      zlist.pre('remove',stubCallback);
+      sinon.assert.notCalled(stubCallback);
+      await zlist.remove('testMember');
+      sinon.assert.calledOnce(stubCallback);
+      sinon.assert.calledWith(stubCallback, 'testMember');
+    })
+  })
 });

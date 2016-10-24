@@ -9,7 +9,8 @@
  */
 export default (list, { tenthLife = 43200000 / 100000 } = {}) => {
   const halfTime = tenthLife * (Math.log(10) / Math.log(2));
-  list.voteHot = async function ({ member, creationDate, votes }){
+  list.voteHot = async function voteHot({ member, creationDate, votes }) {
+    this.execPre('')
     const score = (creationDate / halfTime) + Math.log10(votes);
     await this.add({
       member,
@@ -17,13 +18,14 @@ export default (list, { tenthLife = 43200000 / 100000 } = {}) => {
     });
     this.trim(10000);
   };
-
-  list.trim = async function (amount) {
-    if (Math.random() < (2 / amount)) {
-      await this.removeRangeByRank({
-        min: 0,
-        max: -amount,
-      });
-    }
-  };
+  if (!list.trim) {
+    list.trim = async function trim(amount) {
+      if (Math.random() < (2 / amount)) {
+        await this.removeRangeByRank({
+          min: 0,
+          max: -amount,
+        });
+      }
+    };
+  }
 };
