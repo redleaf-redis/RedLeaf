@@ -3,8 +3,6 @@
  */
 import defaultConnection from './connection';
 
-const Redis = require('ioredis');
-
 /**
  * @param array
  * @returns {Array}
@@ -23,8 +21,6 @@ function castToObject(array) {
 class ZList {
   constructor(name, redis) {
     this.name = name;
-    this._preAdds = [];
-    this._preRem = [];
     this._preFuncs = {};
     this._redis = redis || defaultConnection();
   }
@@ -70,12 +66,10 @@ class ZList {
    */
   preAdd(promiseMiddleware) {
     this.pre('add', promiseMiddleware);
-    // this._preAdds.push(promiseMiddleware);
   }
 
   preRem(promiseMiddleware) {
     this.pre('remove', promiseMiddleware);
-    // this._preRem.push(promiseMiddleware);
   }
 
   /**
