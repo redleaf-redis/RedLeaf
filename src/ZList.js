@@ -25,9 +25,22 @@ class ZList {
     this.name = name;
     this._preAdds = [];
     this._preRem = [];
+    this._preFuncs = {};
     this._redis = redis || defaultConnection();
   }
 
+  pre(name, func) {
+    if (!this._preFuncs[name]) {
+      this._preFuncs[name] = [];
+    }
+    this._preFuncs[name].push(func);
+  }
+
+  execPre(name, data) {
+    const functionsPre = this._preFuncs[name] || [];
+    return Promise
+      .all(functionsPre.map(func => func(this, data)));
+  }
   /**
    * add a plugin to the list
    * @param {Function} plugin
@@ -56,11 +69,13 @@ class ZList {
    * @return {ZList}
    */
   preAdd(promiseMiddleware) {
-    this._preAdds.push(promiseMiddleware);
+    this.pre('add', promiseMiddleware);
+    // this._preAdds.push(promiseMiddleware);
   }
 
   preRem(promiseMiddleware) {
-    this._preRem.push(promiseMiddleware);
+    this.pre('remove', promiseMiddleware);
+    // this._preRem.push(promiseMiddleware);
   }
 
   /**
@@ -70,11 +85,7 @@ class ZList {
    * @return {Promise.<Boolean>}
    */
   add({ score, member }) {
-    return Redis.Promise.resolve(this._preAdds)
-      .each(preAdd => preAdd(this, {
-        score,
-        member,
-      }))
+    return this.execPre('add',{ score, member })
       .then(() => this._redis.zadd(this.name, score, member));
   }
 
@@ -93,8 +104,7 @@ class ZList {
    * @return {Promise.<Boolean>|*}
    */
   remove(member) {
-    return Redis.Promise.resolve(this._preRem)
-      .each(preRem => preRem(this, member))
+    return this.execPre('remove', member)
       .then(() => this._redis.zrem(this.name, member));
   }
 

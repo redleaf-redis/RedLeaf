@@ -224,6 +224,7 @@ describe('Redis Zlist', () => {
       zlistRemStub.reset();
       zlistPreRemStub.reset();
     });
+    after(() => zlistRemStub.restore());
 
     it('should call preRem queue when rem is triggered', async() => {
       zlist.preRem(zlistPreRemStub);
@@ -233,18 +234,19 @@ describe('Redis Zlist', () => {
       sinon.assert.calledOnce(zlistPreRemStub);
     });
   });
-  describe.only('pre functions', () => {
+  describe('pre functions', () => {
     let zListRemoveStub;
     before(() => {
       zListRemoveStub = sinon.stub(zlist._redis, 'zrem').resolves('test_remove');
     });
+    after(() => zListRemoveStub.restore());
     it('should queue a pre function', async () => {
       const stubCallback = sinon.stub().resolves({});
       zlist.pre('remove',stubCallback);
       sinon.assert.notCalled(stubCallback);
       await zlist.remove('testMember');
       sinon.assert.calledOnce(stubCallback);
-      sinon.assert.calledWith(stubCallback, 'testMember');
-    })
+      sinon.assert.calledWith(stubCallback, zlist, 'testMember');
+    });
   })
 });
