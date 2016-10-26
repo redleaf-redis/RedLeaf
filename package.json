@@ -1,6 +1,6 @@
 {
   "name": "redleaf",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Model for all authentication of user",
   "main": "lib/index.js",
   "repository": {
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "ioredis": "2.4.0",
-    "arrow-mocha": "^1.0.1",
+    "arrow-mocha": "1.0.1",
     "babel-eslint": "7.0.0",
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
