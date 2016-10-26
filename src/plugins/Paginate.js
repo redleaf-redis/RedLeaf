@@ -10,6 +10,7 @@ export default (list) => {
     sinceId, maxId, limit = 1, reverse = false,
     filter,
   } = {}) {
+    const limitNumber = parseInt(limit, 10) || 1;
     const range = {};
     // set the ranges to search on redis
     if (sinceId) {
@@ -21,7 +22,7 @@ export default (list) => {
 
     // get one more item on count, it is the nextCursor for pagination
     const limitRange = {
-      count: limit + 1,
+      count: limitNumber + 1,
     };
 
     // get the members and scores with the filters
@@ -73,7 +74,7 @@ export default (list) => {
     let nextMaxId;
 
     // if the objects has more than the limit, means it got the cursor to paginate
-    if (objects.length > limit) {
+    if (objects.length > limitNumber) {
       const last = objects.pop();
       nextMaxId = last.member;
     }
