@@ -15,7 +15,7 @@ export default (list, {
   halfLife = 86400000 / 100000,
   epoch = new Date(2015, 10, 1).getTime() / 100000,
 } = {}) => {
-  list.votePopular = (member) => {
+  list.votePopular = function votePopular(member) {
     debugInfo(`will vote popular on list ${this.name}`, member);
 
     // exec pre votes
