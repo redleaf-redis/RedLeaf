@@ -14,10 +14,10 @@ export default (list) => {
     const range = {};
     // set the ranges to search on redis
     if (sinceId) {
-      range.min = await this.score(sinceId);
+      range.max = await this.score(sinceId);
     }
     if (maxId) {
-      range.max = await this.score(maxId);
+      range.min = await this.score(maxId);
     }
 
     // get one more item on count, it is the nextCursor for pagination
