@@ -1,5 +1,5 @@
 /**
- * Created by James on 26/09/16.
+ * Created by David on 26/09/16.
  */
 import defaultConnection from './connection';
 
