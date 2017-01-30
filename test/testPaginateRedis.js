@@ -25,22 +25,37 @@ chai.use(dirtyChai);
 
 
 describe('Redis Paginate', () => {
+  let sandbox;
+
+  before(() => {
+    sandbox = sinon.sandbox.create();
+  });
+  afterEach(() => {
+    sandbox.reset();
+  });
+  after(() => {
+    sandbox.restore();
+  });
+
   const listTest = new RedLeaf.ZList('testTimeLine', new Redis());
   listTest.plugin(RedLeaf.Plugins.Paginate);
-  const stubListRangeByScore = sinon.stub(listTest, 'rangeByScore').returns([
-    {
-      member: '78c1cc103acff2bdce8c54cc9a4b3dac',
-      score: '1007519',
-    },
-    {
-      member: '116108ed2402d66aeb50f041ec1fd38b',
-      score: '1007516',
-    },
-    {
-      member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
-      score: '1007514',
-    },
-  ]);
+  const stubListRangeByScore = sinon.stub(listTest, 'rangeByScore');
+  beforeEach(() => {
+    stubListRangeByScore.resolves([
+      {
+        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
+        score: '1007519',
+      },
+      {
+        member: '116108ed2402d66aeb50f041ec1fd38b',
+        score: '1007516',
+      },
+      {
+        member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
+        score: '1007514',
+      },
+    ]);
+  })
   afterEach(() => stubListRangeByScore.reset());
   it('must paginate with no values', async() => {
     await listTest.paginate();
@@ -67,8 +82,8 @@ describe('Redis Paginate', () => {
     sinon.assert.calledOnce(stubListRangeByScore);
     sinon.assert.calledWithExactly(stubListRangeByScore, {
       range: {
-        min: 'scoreSince',
-        max: 'scoreMax',
+        min: 'scoreMax',
+        max: 'scoreSince',
       },
       reverse: true,
       limit: {
@@ -77,20 +92,6 @@ describe('Redis Paginate', () => {
     });
   });
   it('should return a cursor if limit is less than the objects amount', async() => {
-    stubListRangeByScore.returns([
-      {
-        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
-        score: '1007519',
-      },
-      {
-        member: '116108ed2402d66aeb50f041ec1fd38b',
-        score: '1007516',
-      },
-      {
-        member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
-        score: '1007514',
-      },
-    ]);
     const paged = await listTest.paginate({
       limit: 2,
     });
@@ -108,20 +109,6 @@ describe('Redis Paginate', () => {
     ]);
   });
   it('should not return a cursor if limit is higher or equal than the objects amount', async() => {
-    stubListRangeByScore.returns([
-      {
-        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
-        score: '1007519',
-      },
-      {
-        member: '116108ed2402d66aeb50f041ec1fd38b',
-        score: '1007516',
-      },
-      {
-        member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
-        score: '1007514',
-      },
-    ]);
     const paged = await listTest.paginate({
       limit: 3,
     });
@@ -142,4 +129,47 @@ describe('Redis Paginate', () => {
       },
     ]);
   });
+  it('should call the filter the correct times', async () => {
+    const filterStub = sandbox.stub().resolves(true);
+    const paged = await listTest.paginate({
+      limit: 2,
+      filter: filterStub,
+    });
+    sinon.assert.callCount(filterStub, 2)
+  })
+
+  it('should call the filter 5 times, 2 loops', async () => {
+    const filterStub = sandbox.spy(({ member }) => '78c1cc103acff2bdce8c54cc9a4b3dac' === member);
+    const paged = await listTest.paginate({
+      limit: 2,
+      filter: filterStub,
+    });
+    expect(paged.objects).to.eql([
+      {
+        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
+        score: '1007519',
+      },
+      {
+        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
+        score: '1007519',
+      },
+    ]);
+    sinon.assert.callCount(filterStub, 5);
+    sinon.assert.callCount(stubListRangeByScore, 2);
+  });
+  it('should know there is no more items', async () => {
+    const filterStub = sandbox.spy(({ member }) => '78c1cc103acff2bdce8c54cc9a4b3dac' === member);
+    const paged = await listTest.paginate({
+      limit: 3,
+      filter: filterStub,
+    });
+    expect(paged.objects).to.eql([
+      {
+        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
+        score: '1007519',
+      },
+    ]);
+    sinon.assert.callCount(filterStub, 3);
+    sinon.assert.callCount(stubListRangeByScore, 1);
+  })
 });

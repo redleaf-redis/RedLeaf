@@ -1,8 +1,10 @@
 /**
  * Created by David on 26/09/16.
  */
+import _debug from 'debug';
 import defaultConnection from './connection';
 
+const debug = _debug('rzlist');
 /**
  * @param array
  * @returns {Array}
@@ -79,7 +81,7 @@ class ZList {
    * @return {Promise.<Boolean>}
    */
   add({ score, member }) {
-    return this.execPre('add',{ score, member })
+    return this.execPre('add', { score, member })
       .then(() => this._redis.zadd(this.name, score, member));
   }
 
@@ -129,6 +131,7 @@ class ZList {
     range: { min = '-inf', max = '+inf' } = {},
     limit, reverse = false,
   } = {}) {
+    debug('rangeByScore', { range: { min, max }, limit, reverse });
     const redisArgs = [];
     if (limit) {
       const { offset = 0, count = 1 } = limit;
