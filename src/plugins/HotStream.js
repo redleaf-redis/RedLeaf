@@ -21,7 +21,7 @@ export default (list, { tenthLife = 43200000 / 100000 } = {}) => {
     debugInfo(`will vote hot on list ${this.name}`, { member, creationDate, votes });
     return list.execPre('voteHot', { member, creationDate, votes })
       .then(() => {
-        const score = (creationDate / halfTime) + Math.log10(votes);
+        const score = (creationDate / halfTime) + (votes ? Math.log10(votes) : 0);
         if (score) {
           return list.add({
             member,

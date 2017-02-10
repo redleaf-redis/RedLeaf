@@ -20,7 +20,15 @@ function castToObject(array) {
   }
   return objects;
 }
+/**
+ *
+ */
 class ZList {
+  /**
+   *
+   * @param name
+   * @param redis
+   */
   constructor(name, redis) {
     this.name = name;
     this._preFuncs = {};
@@ -104,6 +112,10 @@ class ZList {
       .then(() => this._redis.zrem(this.name, member));
   }
 
+  removeByScore(score) {
+    return this._redis
+      .zremrangebyscore(this.name, score, score);
+  }
   /**
    * @param {String} cursor
    * @returns {{pointer, data: Array}}

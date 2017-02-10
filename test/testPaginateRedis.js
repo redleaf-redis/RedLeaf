@@ -24,8 +24,13 @@ chai.use(chaiAsPromised);
 chai.use(dirtyChai);
 
 
-describe('Redis Paginate', () => {
+describe.only('Redis Paginate', () => {
+  /**
+   *
+   * @type {Sinon.SinonSandbox}
+   */
   let sandbox;
+  let stubListRangeByScore, removeByScoreStub;
 
   before(() => {
     sandbox = sinon.sandbox.create();
@@ -39,7 +44,11 @@ describe('Redis Paginate', () => {
 
   const listTest = new RedLeaf.ZList('testTimeLine', new Redis());
   listTest.plugin(RedLeaf.Plugins.Paginate);
-  const stubListRangeByScore = sinon.stub(listTest, 'rangeByScore');
+
+  before(() => {
+    stubListRangeByScore = sinon.stub(listTest, 'rangeByScore');
+    removeByScoreStub = sinon.stub(listTest, 'removeByScore');
+  })
   beforeEach(() => {
     stubListRangeByScore.resolves([
       {
@@ -171,5 +180,40 @@ describe('Redis Paginate', () => {
     ]);
     sinon.assert.callCount(filterStub, 3);
     sinon.assert.callCount(stubListRangeByScore, 1);
+  });
+  it('should remove inf values and filter them', async () => {
+    stubListRangeByScore.resolves([
+      {
+        member: '78c1cc103acff2bdce8c54cc9a4b3dac',
+        score: '-inf',
+      },
+      {
+        member: '116108ed2402d66aeb50f041ec1fd38b',
+        score: '1007516',
+      },
+      {
+        member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
+        score: '+inf',
+      },
+      {
+        member: 'fcdd3747b192c032cfcd1ebeff2c1ab2',
+        score: '+inf',
+      },
+    ]);
+    const paged = await listTest.paginate({
+      limit: 3,
+      filter: () => true,
+      removeInf: true,
+    });
+    sinon.assert.calledWith(removeByScoreStub,'-inf');
+    sinon.assert.calledWith(removeByScoreStub,'+inf');
+
+    expect(paged.objects).eql([
+      { member: '116108ed2402d66aeb50f041ec1fd38b', score: '1007516' },
+      { member: '116108ed2402d66aeb50f041ec1fd38b', score: '1007516' },
+      { member: '116108ed2402d66aeb50f041ec1fd38b', score: '1007516' }
+      ]);
+
+    console.log(paged);
   })
 });

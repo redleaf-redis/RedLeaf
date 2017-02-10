@@ -13,16 +13,17 @@ export default (list) => {
   list.paginate = async function paginate({
     sinceId, maxId, limit = 1, reverse = false,
     filter,
+    removeInf = true,
   } = {}) {
     debug('paginate', { sinceId, maxId, limit, reverse });
     const limitNumber = parseInt(limit, 10) || 1;
     const range = {};
     // set the ranges to search on redis
     if (sinceId) {
-      range.max = await this.score(sinceId);
+      range.max = await list.score(sinceId);
     }
     if (maxId) {
-      range.min = await this.score(maxId);
+      range.min = await list.score(maxId);
     }
 
     // get one more item on count, it is the nextCursor for pagination
@@ -31,7 +32,7 @@ export default (list) => {
     };
 
     // get the members and scores with the filters
-    let objectsFirstFound = await this.rangeByScore({
+    let objectsFirstFound = await list.rangeByScore({
       range,
       reverse,
       limit: limitRange,
@@ -58,8 +59,19 @@ export default (list) => {
 
       // loop once to apply the filter
       do {
+        // flag for inf values found
+        let hasInf = false;
+
         // filter objects found that has not been filtered
-        const objectsFiltered = await Promise.filter(objToFilter, filter);
+        const objectsFiltered = await Promise
+          .filter(objToFilter, ({ score }) => {
+            if (score === '-inf' || score === '+inf') {
+              hasInf = true;
+              return false;
+            }
+            return true;
+          })
+          .filter(filter);
 
         // add filtered objects to final array
         objects = objects.concat(objectsFiltered);
@@ -73,13 +85,17 @@ export default (list) => {
           // set the limit to get the missing objects filtered
           limitRange.count = missingObjectsAmount;
           if (lastScore === '-inf') {
+            hasInf = true;
             range.max = '-inf';
+          } else if (lastScore === '+inf') {
+            hasInf = true;
+            range.max = '+inf';
           } else {
             range.max = (parseInt(lastScore, 10) - 1) || '+inf';
           }
 
           // get the new objects from the model list
-          objToFilter = await this.rangeByScore({
+          objToFilter = await list.rangeByScore({
             range,
             reverse,
             limit: limitRange,
@@ -87,6 +103,13 @@ export default (list) => {
           objToFilter = [last].concat(objToFilter);
           debug('objToFilter.length', objToFilter.length);
           last = objToFilter.pop();
+        }
+
+        if (removeInf && hasInf) {
+          await Promise.all([
+            list.removeByScore('-inf'),
+            list.removeByScore('+inf'),
+          ]);
         }
 
         // while the limit has items to get and the found objects to fetch and filter

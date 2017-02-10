@@ -17,24 +17,24 @@ hotStream.default(myList, {
   tenthLife: 24*60*60*1000
 });
 
-const creationDate = 1486413066000;
+const creationDate = 1486753409121;
 const tomorrow = creationDate + 24*60*60*1000;
 console.log('HalfTime',myList._HotStreamHalfTime);
 Promise.all([
     myList.voteHot({
       member: 'testMember2',
       creationDate,
-      votes: 2
+      votes: 0
     }),
     myList.voteHot({
       member: 'testMember4',
       creationDate,
-      votes: 4
+      votes: 0
     }),
     myList.voteHot({
       member: 'testMemberTomorrow',
       creationDate: tomorrow,
-      votes: 2
+      votes: 0
     })
 ])
 .then(() => {
