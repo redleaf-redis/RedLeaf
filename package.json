@@ -1,6 +1,6 @@
 {
   "name": "redleaf",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Model for all authentication of user",
   "main": "lib/index.js",
   "repository": {

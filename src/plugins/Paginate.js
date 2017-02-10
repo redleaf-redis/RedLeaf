@@ -93,9 +93,9 @@ export default (list) => {
           } else {
             range.max = (parseInt(lastScore, 10) - 1) || '+inf';
           }
-
+          debug('range', range);
           // get the new objects from the model list
-          objToFilter = await list.rangeByScore({
+          objToFilter = await this.rangeByScore({
             range,
             reverse,
             limit: limitRange,
@@ -107,8 +107,8 @@ export default (list) => {
 
         if (removeInf && hasInf) {
           await Promise.all([
-            list.removeByScore('-inf'),
-            list.removeByScore('+inf'),
+            this.removeByScore('-inf'),
+            this.removeByScore('+inf'),
           ]);
         }
 
