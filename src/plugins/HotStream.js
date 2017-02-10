@@ -17,15 +17,18 @@ export default (list, { tenthLife = 43200000 / 100000 } = {}) => {
 
   list._HotStreamHalfTime = halfTime;
 
-  list.voteHot = function voteHot({ member, creationDate, votes }) {
+  list.voteHot = function voteHot({ member, creationDate, votes = 0 }) {
     debugInfo(`will vote hot on list ${this.name}`, { member, creationDate, votes });
     return list.execPre('voteHot', { member, creationDate, votes })
       .then(() => {
         const score = (creationDate / halfTime) + Math.log10(votes);
-        return list.add({
-          member,
-          score,
-        });
+        if (score) {
+          return list.add({
+            member,
+            score,
+          });
+        }
+        return null;
       })
       .then((add) => {
         debugInfo(`added vote hot on list ${this.name}`, add);
