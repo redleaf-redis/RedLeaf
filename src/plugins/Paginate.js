@@ -72,7 +72,7 @@ export default (list) => {
 
           // set the limit to get the missing objects filtered
           limitRange.count = missingObjectsAmount;
-          range.max = parseInt(lastScore, 10) - 1;
+          range.max = (parseInt(lastScore, 10) - 1) || '+inf';
 
           // get the new objects from the model list
           objToFilter = await this.rangeByScore({
